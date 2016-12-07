@@ -232,7 +232,6 @@ public class GameActivity extends AppCompatActivity {
         translateAnimation.setFillAfter(true);
         final Handler handler = new Handler();
 
-        //fasdfasdf
         //After one second, duck death animation plays
         handler.postDelayed(new Runnable() {
             @Override
