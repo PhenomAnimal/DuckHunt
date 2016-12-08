@@ -1,56 +1,72 @@
 package com.example.tjl01030.duckhunt;
 
 import android.graphics.Rect;
+import android.media.Image;
+import android.media.MediaPlayer;
 import android.widget.ImageView;
+
+import java.util.Random;
 
 /**
  * Created by tjl01030 on 12/5/2016.
  */
 
 public class Duck {
-    private int duckX, duckY, REVERSE, mDirection;
+    private int duckX, duckY, REVERSE, mDirection, theWidth, theHeight;
     private double mVelocityX, mVelocityY;
-    Rect field, duck;
     int x, y;
 
     public double setVelocityX(double velocity) { mVelocityX = velocity;
         return velocity;
     }
-    //public double getVelocityX() {return mVelocityX;}
+
     public double setVelocityY(double velocity) { mVelocityY = velocity;
         return velocity;
     }
-    //public double getVelocityY() {return mVelocityY;}
 
     public void setX(int x){duckX = x;}
     public int getX(){return duckX;}
     public void setY(int y){duckY = y;}
     public int getY(){return duckY;}
 
-    public Duck (int x, int y){
+    public Duck (int x, int y, int mWidth, int mHeight){
+        theWidth = mWidth;
+        theHeight = mHeight;
         this.x = x;
         this.y = y;
         mDirection = 1;
     }
 
-    public void move(ImageView fieldv, ImageView duckv) {
-        REVERSE = -1;
-        duckX += mVelocityX;
-        duckY += mVelocityY;
 
-        if (Math.abs(mVelocityX) < 1){
-            mVelocityX = 2;
+
+    public void move(ImageView stageV) {
+        duckX += 200/mVelocityX;
+        duckY += 200/mVelocityY;
+
+        if (duckX > theWidth-150) {
+            duckX = theWidth-150;
+            mVelocityX *= -1;
+            mDirection = -1;
         }
-        if (Math.abs(mVelocityY) < 1){
-            mVelocityY = 2;
+        else if (duckX < stageV.getLeft()) {
+            duckX = stageV.getLeft();
+            mVelocityX *= -1;
+            mDirection = 1;
         }
 
-        field = new Rect(fieldv.getLeft(), fieldv.getTop(), fieldv.getRight(), fieldv.getBottom());
-        duck = new Rect(duckv.getLeft(), duckv.getTop(), duckv.getRight(), duckv.getBottom());
-
-        if(Rect.intersects(field, duck)){
-            duckX *= REVERSE;
-            duckY *= REVERSE;
+        if (duckY < stageV.getTop()) {
+            duckY = stageV.getTop();
+            mVelocityY *= -1;
         }
+        else if (duckY > stageV.getBottom()-300) {
+            duckY = stageV.getBottom()-300;
+            mVelocityY *= -1;
+        }
+
+
+    }
+
+    public int getFacingDirection() {
+        return mDirection;
     }
 }

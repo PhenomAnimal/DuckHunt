@@ -31,15 +31,6 @@
         android:id="@+id/theSky" />
 
     <ImageView
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        app:srcCompat="@drawable/duck_movement_x"
-        android:id="@+id/imageViewDuck"
-        android:onClick="clickBird"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="114dp" />
-
-    <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="clickGun"
@@ -55,6 +46,16 @@
         android:layout_height="75dp"
         app:srcCompat="@drawable/dog_walk_animate"
         android:id="@+id/dog_movement" />
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        app:srcCompat="@drawable/duck_movement_x"
+        android:id="@+id/imageViewDuck"
+        android:onClick="clickBird"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="32dp" />
 
 
 </RelativeLayout>

@@ -1,36 +1,18 @@
 package com.example.tjl01030.duckhunt;
 
-import android.content.Context;
-import android.content.Intent;
+
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
-import android.os.CountDownTimer;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.text.Layout;
-import android.view.MotionEvent;
-import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
-import android.widget.FrameLayout.LayoutParams;
-import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Display;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewDebug;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-
-import java.util.Arrays;
+import java.util.Random;
 
 public class GameActivity extends AppCompatActivity {
     private ImageView stageView;
@@ -42,8 +24,6 @@ public class GameActivity extends AppCompatActivity {
     private Thread mThread;
     private int theHeight;
     private int theWidth;
-    private int getX;
-    private int getY;
     private MediaPlayer mp, mp2, mp4;
 
 
@@ -51,18 +31,21 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game_activity);
-        duck = new Duck(xLocation, yLocation);
+        int min = 0;
+        int max = 80;
+        Random r = new Random();
+        int random = r.nextInt(max - min + 1) + min;
+        xLocation = random;
+        yLocation = random;
         stageView = (ImageView)findViewById(R.id.imageView3);
         theDuck = (ImageView)findViewById(R.id.imageViewDuck);
         theDog = (ImageView)findViewById(R.id.dog_movement);
-        //Change xLocation and yLocation for the duck to hide in the grass once movement is figured out
-        xLocation = 500;
-        yLocation = 500;
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
-        theWidth = size.x;
         theHeight = size.y;
+        theWidth = size.x;
+        duck = new Duck(xLocation, yLocation, theWidth, theHeight);
         mThread = new Thread(calculateAction);
         theDuck.setVisibility(View.GONE);
         mp = MediaPlayer.create(this, R.raw.intro);
@@ -132,8 +115,8 @@ public class GameActivity extends AppCompatActivity {
                                 translateAnimation.cancel();
                                 theDog.clearAnimation();
                                 theDog.setVisibility(View.GONE);
-                                callDuck();
                                 mThread.start();
+                                callDuck();
                             }
                         }, 700);
                     }
@@ -141,20 +124,32 @@ public class GameActivity extends AppCompatActivity {
             }
         }, 1000);
     }
-
+//
 
     private void callDuck() {
-        theDuck.setVisibility(View.VISIBLE);
+        int minX = 0;
+        int maxX = theWidth;
+        Random r = new Random();
+        int random = r.nextInt(maxX - minX + 1) + minX;
+        int minY = stageView.getBottom();
+        int maxY = stageView.getBottom()+150;
+        Random rY = new Random();
+        int randomY = rY.nextInt(maxY - minY + 1) + minY;
         duck.setVelocityX(30);
-        duck.setVelocityY(30);
-        duck.setX(duck.getX());
-        duck.setY(duck.getY());
+        duck.setX(random);
         theDuck.setX(duck.getX());
-        theDuck.setY(duck.getY());
+        duck.setY(duck.getY());
+        theDuck.setY(randomY);
+        duck.setVelocityY(200);
         Log.v("callDuck Bird X", String.valueOf(duck.getX()));
         Log.v("callDuck Bird Y", String.valueOf(duck.getY()));
         frameAnimation = (AnimationDrawable) theDuck.getDrawable();
         frameAnimation.start();
+        theDuck.setVisibility(View.VISIBLE);
+        mp.release();
+        mp = MediaPlayer.create(this, R.raw.duck_flapping);
+        mp.start();
+        mp.setLooping(true);
     }
 
 
@@ -187,10 +182,13 @@ public class GameActivity extends AppCompatActivity {
         public void run() {
             while(true){
             try {
-                duck.move(stageView, theDuck);
+                duck.move(stageView);
                 Thread.sleep(DELAY);
                 threadHandler.sendEmptyMessage(0);
-
+                Log.v("theDuck X", String.valueOf(theDuck.getX()));
+                Log.v("theDuck Y", String.valueOf(theDuck.getY()));
+                Log.v("duck X", String.valueOf(duck.getX()));
+                Log.v("duck Y", String.valueOf(duck.getY()));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -199,7 +197,7 @@ public class GameActivity extends AppCompatActivity {
 
     public Handler threadHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
-            //theDuck.setScaleX((float) (duck.getFacingDirection()));
+            theDuck.setScaleX((float) (duck.getFacingDirection()));
             theDuck.setX((float) duck.getX());
             theDuck.setY((float) duck.getY());
         }
@@ -209,10 +207,8 @@ public class GameActivity extends AppCompatActivity {
 
     public void clickBird(View view){
         //Current thread is calculateAction
-        try {
-            Thread.currentThread().sleep(3350);
-        } catch (InterruptedException e){
-        }
+        mp.setLooping(false);
+        mp.release();
         theDuck.setImageResource(R.drawable.duck_shot_delay);
         mp2 = MediaPlayer.create(this, R.raw.dead_duck_lands);
         mp = MediaPlayer.create(this, R.raw.duck_falling);
